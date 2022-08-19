@@ -59,21 +59,6 @@
 -- LIMIT 10
 
 
-
-
--- SELECT * 
--- FROM app_store_apps;
-
--- SELECT *
--- FROM play_store_apps;
-
--- SELECT *
--- FROM app_store_apps AS a
--- INNER JOIN
--- play_store_apps AS p
--- USING(name);
-
-
 -- SELECT name as app, price, genres, install_count, rating, years_survived, CAST(app_purchase_price as money),
 -- CAST(total_marketing_cost as money), CAST(advertising_profit as money),
 -- CAST((advertising_profit - (app_purchase_price + total_marketing_cost)) as money) as net_income, 
@@ -93,9 +78,38 @@
 -- LIMIT 30;
 
 
-SELECT DISTINCT(category)
-FROM play_store_apps;
+-- exploratory - 
 
-SELECT DISTINCT(primary_genre)
-FROM app_store_apps;
+-- SELECT DISTINCT(category)
+-- FROM play_store_apps; -- 33
+
+
+-- SELECT DISTINCT(primary_genre)
+-- FROM app_store_apps; -- 23
+
+
+-- SELECT MAX(CAST(price as money))
+-- FROM app_store_apps; -- $299.99
+
+
+-- SELECT MAX(CAST(price as money))
+-- FROM play_store_apps; -- $400
+
+
+-- SELECT name, CAST(review_count as integer)
+-- FROM app_store_apps
+-- ORDER BY review_count DESC; -- Facebook 2,974,676, Insta 2,161,558, Clash of Clans 2,130,805
+
+
+-- SELECT name, review_count
+-- FROM play_store_apps
+-- GROUP BY name, review_count
+-- ORDER BY review_count DESC; -- Facebook 78,158,306, WhatsApp 69,119,316, Insta 66,577,446
+
+
+-- SELECT DISTINCT(name), rating, review_count, primary_genre
+-- FROM app_store_apps
+-- WHERE 
+-- ORDER BY rating DESC
+-- LIMIT 20;
 
