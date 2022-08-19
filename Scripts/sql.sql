@@ -127,12 +127,12 @@ LIMIT 10
 -- "WGT Golf Game by Topgolf"
 -- "Dude Perfect 2"
 
-SELECT name as app, price, genres, install_count, review_count,rating, years_survived, CAST(app_purchase_price as money)
+SELECT name as app, price, genres, install_count,rating, years_survived, CAST(app_purchase_price as money), review_count,
 CAST(total_marketing_cost as money), CAST(advertising_profit as money),
 CAST((advertising_profit - (app_purchase_price + total_marketing_cost)) as money) as net_income,
 CAST(ROUND((advertising_profit - (app_purchase_price + total_marketing_cost))/(12 * (CAST(rating as NUMERIC) * 2 + 1)),2) as money) as monthly_income
 FROM
-(SELECT DISTINCT name, psa.install_count, psa.review_count, asa.rating, asa.price, psa.category, psa.genres,
+(SELECT DISTINCT name, psa.install_count, asa.rating, asa.price, psa.category, psa.genres, psa.review_count,
     (CAST(asa.rating as NUMERIC) * 2 + 1) as years_survived,
     CASE WHEN asa.price <= 1.00 THEN 10000
     WHEN asa.price > 1.00 THEN asa.price * 10000 END as app_purchase_price,
@@ -145,21 +145,22 @@ FROM
 ORDER BY monthly_income DESC
 LIMIT 30
 
+
+
 SELECT name as app, price, genres, install_count,rating, years_survived, CAST(app_purchase_price as money), review_count,
 CAST(total_marketing_cost as money), CAST(advertising_profit as money),
 CAST((advertising_profit - (app_purchase_price + total_marketing_cost)) as money) as net_income,
 CAST(ROUND((advertising_profit - (app_purchase_price + total_marketing_cost))/(12 * (CAST(rating as NUMERIC) * 2 + 1)),2) as money) as monthly_income
 FROM
 (SELECT DISTINCT asa.name, psa.install_count, asa.rating, asa.price, psa.category, psa.genres, psa.review_count,
-    (CAST(asa.rating as NUMERIC) * 2 + 1) as years_survived,
+    ((CAST(asa.rating as NUMERIC) * 2 + 1) as years_survived,
     CASE WHEN asa.price <= 1.00 THEN 10000
     WHEN asa.price > 1.00 THEN asa.price * 10000 END as app_purchase_price,
     (CAST(asa.rating as NUMERIC) * 2 + 1) * 1000 * 12 as total_marketing_cost,
     (CAST(asa.rating as NUMERIC) * 2 + 1) * 5000 * 12 as advertising_profit
     FROM app_store_apps as asa
     INNER JOIN play_store_apps as psa
-    ON psa.name = asa.name
-    WHERE psa.content_rating = 'Everyone') as subq
+    ON psa.name = asa.name) as subq
 ORDER BY monthly_income DESC
 LIMIT 10
 
@@ -185,6 +186,23 @@ d. For every half point that an app gains in rating, its projected lifespan incr
 
 e. App Trader would prefer to work with apps that are available in both the App Store and the Play Store since they can market both for the same $1000 per month. 
 
-
+Shows the top 6 with genre for everyone:
+ 
+SELECT name as app, price, genres, install_count,rating, years_survived, CAST(app_purchase_price as money), review_count,
+CAST(total_marketing_cost as money), CAST(advertising_profit as money),
+CAST((advertising_profit - (app_purchase_price + total_marketing_cost)) as money) as net_income,
+CAST(ROUND((advertising_profit - (app_purchase_price + total_marketing_cost))/(12 * (CAST(rating as NUMERIC) * 2 + 1)),2) as money) as monthly_income
+FROM
+(SELECT DISTINCT name, psa.install_count, asa.rating, asa.price, psa.category, psa.genres, psa.review_count,
+    (CAST(asa.rating as NUMERIC) * 2 + 1) as years_survived,
+    CASE WHEN asa.price <= 1.00 THEN 10000
+    WHEN asa.price > 1.00 THEN asa.price * 10000 END as app_purchase_price,
+    (CAST(asa.rating as NUMERIC) * 2 + 1) * 1000 * 12 as total_marketing_cost,
+    (CAST(asa.rating as NUMERIC) * 2 + 1) * 5000 * 12 as advertising_profit
+    FROM app_store_apps as asa
+    INNER JOIN play_store_apps as psa
+    USING (name)) as subq
+ORDER BY monthly_income DESC, 
+LIMIT 20
 
 
