@@ -113,3 +113,22 @@
 -- ORDER BY rating DESC
 -- LIMIT 20;
 
+-- FINAL PRODUCT BELOW --
+
+SELECT DISTINCT name as app, CAST((advertising_profit - (app_purchase_price + total_marketing_cost)) as money) as net_income,
+CAST(ROUND((advertising_profit - (app_purchase_price + total_marketing_cost))/(12 * (CAST(rating as NUMERIC) * 2 + 1)),2) as money) as monthly_income, 
+ROUND(CAST(REPLACE(REPLACE(install_count,',',''),'+','') as NUMERIC)/1000000,0) as users_by_million, content_rating, review_count, price, rating, years_survived, 
+CAST(app_purchase_price as money),
+CAST(total_marketing_cost as money), CAST(advertising_profit as money)
+FROM
+(SELECT DISTINCT name, psa.install_count, asa.rating, asa.price, psa.category, asa.review_count, psa.genres, psa.content_rating,
+    (CAST(asa.rating as NUMERIC) * 2 + 1) as years_survived,
+    CASE WHEN asa.price <= 1.00 THEN 10000  
+    WHEN asa.price > 1.00 THEN asa.price * 10000 END as app_purchase_price, 
+    (CAST(asa.rating as NUMERIC) * 2 + 1) * 1000 * 12 as total_marketing_cost, 
+    (CAST(asa.rating as NUMERIC) * 2 + 1) * 5000 * 12 as advertising_profit
+    FROM app_store_apps as asa
+    INNER JOIN play_store_apps as psa
+    USING (name)) as subq
+ORDER BY monthly_income DESC, users_by_million DESC, content_rating, review_count DESC
+LIMIT 10
