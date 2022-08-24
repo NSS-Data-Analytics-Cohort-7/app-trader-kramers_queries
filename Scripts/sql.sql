@@ -48,10 +48,163 @@ SELECT name, psa.price, asa.price, CASE WHEN (asa.price > 1.00) THEN asa.price *
 
 --Create a table that shows the app name and total advertising profits. Use the assumption that apps earn $5000 per month on average from in-app advertising and in-app purchases _regardless_ of the price of the app. 
 
+
+
+SELECT name, (years_projected_lifespan * 12 * 5000) AS total_advertising_profits, (years_projected_lifespan * 12 * 1000) AS marketing_costs
+FROM 
+  (SELECT asa.name, psa.rating, asa.rating, 
+    CASE WHEN (rating =0) THEN 1
+    WHEN (rating BETWEEN 0.3 AND 0.6) THEN 2
+    WHEN (rating BETWEEN 0.7 AND 1.2) THEN 3
+    WHEN (rating BETWEEN 1.3 AND 1.6) THEN 4
+    WHEN (rating BETWEEN 1.7 AND 2.2) THEN 5
+    WHEN (rating BETWEEN 2.3 AND 2.6) THEN 6
+    WHEN (rating BETWEEN 2.7 AND 3.2) THEN 7
+    WHEN (rating BETWEEN 3.3 AND 3.6) THEN 8
+    WHEN (rating BETWEEN 3.7 AND 4.2) THEN 9
+    WHEN (rating BETWEEN 4.3 AND 4.6) THEN 10
+    WHEN (rating = 5) THEN 11
+ ELSE 0 END AS years_projected_lifespan
+ FROM app_store_apps AS asa
+FULL JOIN play_store_apps AS psa
+ USING (name, rating)
+ ORDER BY years_projected_lifespan DESC) AS subquery
+
 --Create a table that shows total marketing costs. Use the assumption app Trader will spend an average of $1000 per month to market an app _regardless_ of the price of the app. If App Trader owns rights to the app in both stores, it can market the app for both stores for a single cost of $1000 per month.  
 
+SELECT name, (years_projected_lifespan * 12 * 1000) AS marketing_costs
+FROM 
+  (SELECT asa.name, psa.rating, asa.rating, 
+    CASE WHEN (rating =0) THEN 1
+    WHEN (rating BETWEEN 0.3 AND 0.6) THEN 2
+    WHEN (rating BETWEEN 0.7 AND 1.2) THEN 3
+    WHEN (rating BETWEEN 1.3 AND 1.6) THEN 4
+    WHEN (rating BETWEEN 1.7 AND 2.2) THEN 5
+    WHEN (rating BETWEEN 2.3 AND 2.6) THEN 6
+    WHEN (rating BETWEEN 2.7 AND 3.2) THEN 7
+    WHEN (rating BETWEEN 3.3 AND 3.6) THEN 8
+    WHEN (rating BETWEEN 3.7 AND 4.2) THEN 9
+    WHEN (rating BETWEEN 4.3 AND 4.6) THEN 10
+    WHEN (rating = 5) THEN 11
+ ELSE 0 END AS years_projected_lifespan
+ FROM app_store_apps AS asa
+FULL JOIN play_store_apps AS psa
+ USING (name, rating)
+ ORDER BY years_projected_lifespan DESC) AS subquery
  
 --Create a table that shows projected lifespan of the app. Use the assumption that for every half point that an app gains in rating, its projected lifespan increases by one year, in other words, an app with a rating of 0 can be expected to be in use for 1 year, an app with a rating of 1.0 can be expected to last 3 years, and an app with a rating of 4.0 can be expected to last 9 years. Ratings should be rounded to the nearest 0.5 to evaluate an app's likely longevity.  
+
+ 
+ SELECT CAST(years_projected_lifespan AS NUMERIC)
+ FROM
+ (SELECT name, rating, CASE WHEN (rating =0) THEN '1'
+    WHEN (rating BETWEEN 0.3 AND 0.6) THEN '2'
+    WHEN (rating BETWEEN 0.7 AND 1.2) THEN '3'
+    WHEN (rating BETWEEN 1.3 AND 1.6) THEN '4'
+    WHEN (rating BETWEEN 1.7 AND 2.2) THEN '5'
+    WHEN (rating BETWEEN 2.3 AND 2.6) THEN '6'
+    WHEN (rating BETWEEN 2.7 AND 3.2) THEN '7'
+    WHEN (rating BETWEEN 3.3 AND 3.6) THEN '8'
+    WHEN (rating BETWEEN 3.7 AND 4.2) THEN '9'
+    WHEN (rating BETWEEN 4.3 AND 4.6) THEN '10'
+    WHEN (rating = 5) THEN '11'
+ ELSE '0' END AS years_projected_lifespan
+ FROM play_store_apps
+ ORDER BY years_projected_lifespan DESC) AS projected_lifespan
+ 
+--  Couldn't figure out how to round to the nearest 0.5, so resulted in this CASE WHEN masterpiece. 
+ 
+ SELECT asa.name, psa.rating, asa.rating, CASE WHEN (rating =0) THEN 1
+    WHEN (rating BETWEEN 0.3 AND 0.6) THEN 2
+    WHEN (rating BETWEEN 0.7 AND 1.2) THEN 3
+    WHEN (rating BETWEEN 1.3 AND 1.6) THEN 4
+    WHEN (rating BETWEEN 1.7 AND 2.2) THEN 5
+    WHEN (rating BETWEEN 2.3 AND 2.6) THEN 6
+    WHEN (rating BETWEEN 2.7 AND 3.2) THEN 7
+    WHEN (rating BETWEEN 3.3 AND 3.6) THEN 8
+    WHEN (rating BETWEEN 3.7 AND 4.2) THEN 9
+    WHEN (rating BETWEEN 4.3 AND 4.6) THEN 10
+    WHEN (rating = 5) THEN 11
+ ELSE 0 END AS years_projected_lifespan
+ FROM play_store_apps AS psa
+LEFT JOIN app_store_apps AS asa 
+ USING (name, rating)
+ ORDER BY years_projected_lifespan DESC
+ 
+-- Left join with play store on the left resulted in 10840 apps
+ 
+  SELECT asa.name, psa.rating, asa.rating, CASE WHEN (rating =0) THEN 1
+    WHEN (rating BETWEEN 0.3 AND 0.6) THEN 2
+    WHEN (rating BETWEEN 0.7 AND 1.2) THEN 3
+    WHEN (rating BETWEEN 1.3 AND 1.6) THEN 4
+    WHEN (rating BETWEEN 1.7 AND 2.2) THEN 5
+    WHEN (rating BETWEEN 2.3 AND 2.6) THEN 6
+    WHEN (rating BETWEEN 2.7 AND 3.2) THEN 7
+    WHEN (rating BETWEEN 3.3 AND 3.6) THEN 8
+    WHEN (rating BETWEEN 3.7 AND 4.2) THEN 9
+    WHEN (rating BETWEEN 4.3 AND 4.6) THEN 10
+    WHEN (rating = 5) THEN 11
+ ELSE 0 END AS years_projected_lifespan
+ FROM app_store_apps AS asa
+LEFT JOIN play_store_apps AS psa
+ USING (name, rating)
+ ORDER BY years_projected_lifespan DESC
+ 
+-- Left join with app_store on the left resulted in 7245 apps
+
+  SELECT asa.name, psa.rating, asa.rating, CASE WHEN (rating =0) THEN 1
+    WHEN (rating BETWEEN 0.3 AND 0.6) THEN 2
+    WHEN (rating BETWEEN 0.7 AND 1.2) THEN 3
+    WHEN (rating BETWEEN 1.3 AND 1.6) THEN 4
+    WHEN (rating BETWEEN 1.7 AND 2.2) THEN 5
+    WHEN (rating BETWEEN 2.3 AND 2.6) THEN 6
+    WHEN (rating BETWEEN 2.7 AND 3.2) THEN 7
+    WHEN (rating BETWEEN 3.3 AND 3.6) THEN 8
+    WHEN (rating BETWEEN 3.7 AND 4.2) THEN 9
+    WHEN (rating BETWEEN 4.3 AND 4.6) THEN 10
+    WHEN (rating = 5) THEN 11
+ ELSE 0 END AS years_projected_lifespan
+ FROM app_store_apps AS asa
+FULL JOIN play_store_apps AS psa
+ USING (name, rating)
+ ORDER BY years_projected_lifespan DESC
+ 
+-- Full join resulted in 17986 apps
+
+-- Create a table that shows net overall profit (advertizing profit - (marketing costs + purchase price):
+
+SELECT name, psa.price, asa.price, CASE WHEN (asa.price > 1.00) THEN asa.price * 10000 ELSE 10000 END AS purchase_price
+ FROM app_store_apps AS asa
+ INNER JOIN play_store_apps AS psa
+ USING (name)
+ ORDER BY purchase_price
+ LIMIT 10;
+
+SELECT name, asa_money, psa_money, (years_projected_lifespan * 12 * 5000) - (years_projected_lifespan * 12 * 1000) AS net_profit
+FROM 
+  (SELECT asa.name, psa.rating, asa.rating, CAST(CAST(asa.price AS money) AS NUMERIC) AS asa_money, CAST(CAST(psa.price AS MONEY) AS NUMERIC) AS psa_money,
+    CASE WHEN (rating = 0) THEN 1
+    WHEN (rating BETWEEN 0.3 AND 0.6) THEN 2
+    WHEN (rating BETWEEN 0.7 AND 1.2) THEN 3
+    WHEN (rating BETWEEN 1.3 AND 1.6) THEN 4
+    WHEN (rating BETWEEN 1.7 AND 2.2) THEN 5
+    WHEN (rating BETWEEN 2.3 AND 2.6) THEN 6
+    WHEN (rating BETWEEN 2.7 AND 3.2) THEN 7
+    WHEN (rating BETWEEN 3.3 AND 3.6) THEN 8
+    WHEN (rating BETWEEN 3.7 AND 4.2) THEN 9
+    WHEN (rating BETWEEN 4.3 AND 4.6) THEN 10
+    WHEN (rating = 5) THEN 11
+ ELSE 0 END AS years_projected_lifespan
+ FROM app_store_apps AS asa
+FULL JOIN play_store_apps AS psa
+ USING (name, rating)
+ ORDER BY years_projected_lifespan DESC) AS subquery
+ 
+ SELECT CAST(CAST(price AS money) AS numeric)
+ FROM play_store_apps
+ 
+ SELECT CAST(CAST (price AS money) AS numeric)
+ FROM app_store_apps
 
 
 -- Create a table that shows prices of our top 10 apps from both the appstore and play store in order to make sure that the apps are all free. 
